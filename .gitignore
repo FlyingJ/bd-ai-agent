@@ -13,3 +13,6 @@ uv.lock
 
 # Environment variables
 .env
+
+# example files
+*_examples.py
