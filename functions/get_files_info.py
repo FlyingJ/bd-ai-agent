@@ -18,36 +18,29 @@ def get_files_info(working_directory, directory="."):
 
 	response = f"Result for {directory_designation} directory:\n"
 	
-	# beware symbolic links and other path trickery
 	try:
 		# validate working_directory / directory lies within working_directory
 		# or throw exception
 		validate_is_jailed(working_directory, directory) 
 		# validate norm_directory_path (directory we are listing) is a directory
 		validate_is_dir(norm_directory_path)
-	except Exception as e:
-		return response + f"    Error: {e}\n"
-
-	try:
-		filenames = glob.glob(
+	
+		file_names = glob.glob(
 			"*",
 			root_dir=norm_directory_path
 			)
-	except Exception as e:
-		return response + f"    Error: {e}\n"
 
-	for filename in filenames:
-		filepath = os.path.normpath(
-			os.path.join(working_directory, directory, filename)
+		for file_name in file_names:
+			file_path = os.path.normpath(
+			os.path.join(working_directory, directory, file_name)
 			)
 
-		try:
-			file_size = os.stat(filepath).st_size
-			file_is_dir = os.path.isdir(filepath)
-		except Exception as e:
-	 		return response + f"    Error: {e}\n"
-
-		path_info_string = f' - {filename}: file_size={file_size} bytes, is_dir={file_is_dir}\n'
-		response += path_info_string
+			file_size = os.stat(file_path).st_size
+			file_is_dir = os.path.isdir(file_path)
+			
+			path_info_string = f' - {file_name}: file_size={file_size} bytes, is_dir={file_is_dir}\n'
+			response += path_info_string
+	except Exception as e:
+		return response + f"    Error: {e}\n"
 
 	return response

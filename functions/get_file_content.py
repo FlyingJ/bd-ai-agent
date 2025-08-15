@@ -11,8 +11,6 @@ def get_file_content(working_directory, file_path):
 
 	response_header = f'Result for "{file_path}":\n'
 
-	# validate that working_directory + file_path
-	# stays within the bounds of working_directory
 	try:
 		# validate working_directory / directory lies within working_directory
 		# or throw exception
@@ -20,11 +18,11 @@ def get_file_content(working_directory, file_path):
 		# validate norm_directory_path (directory we are listing) is a directory
 		validate_is_file(norm_file_path)
 	
-
 		# read first MAX_CHARS of file_path and return
 		with open(norm_file_path) as fd:
 			file_content = fd.read(MAX_CHARS)
 
+		# let caller know file truncated at MAX_CHARS
 		if len(file_content) >= MAX_CHARS:
 			file_footer = f'\n[...File "{file_path}" truncated at {MAX_CHARS} characters]'
 			file_content += file_footer
