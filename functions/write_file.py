@@ -9,19 +9,18 @@ def write_file(working_directory, file_path, content):
 	try:
 		# validate working_directory / directory lies within working_directory
 		# or throw exception
-		validate_is_jailed(working_directory, file_path) 
+		validate_is_jailed(working_directory, file_path)
 		# validate norm_directory_path (directory we are listing) is a directory
 		validate_is_file(norm_file_path)
 	
 		# read first MAX_CHARS of file_path and return
-		with open(norm_file_path) as fd:
-			file_content = fd.read(MAX_CHARS)
+		with open(norm_file_path, "r", encoding="utf-8") as fd:
+			chars_written = fd.write(content)
 
 		# let the caller know that we needed to truncate at MAX_CHARS
-		if len(file_content) >= MAX_CHARS:
-			file_footer = f'\n[...File "{file_path}" truncated at {MAX_CHARS} characters]'
-			file_content += file_footer
-	
-		return response_header + file_content
+		if len(content) != chars_written:
+			return f'Successfully wrote to "{file_path}" ({chars_written} characters written)'
+		else:
+			raise Exception(f'Write to "{file_path}" incomplete: {chars_written} of {len(content)} characters written')
 	except Exception as e:
-		return response_header + f"    Error: {e}\n"
+		return f'    Error: {e}\n'
