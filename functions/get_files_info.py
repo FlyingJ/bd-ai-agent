@@ -21,7 +21,7 @@ def get_files_info(working_directory, directory="."):
 	try:
 		# validate working_directory / directory lies within working_directory
 		# or throw exception
-		validate_is_jailed(working_directory, directory) 
+		validate_is_jailed(working_directory, directory, "list") 
 		# validate norm_directory_path (directory we are listing) is a directory
 		validate_is_dir(norm_directory_path)
 	

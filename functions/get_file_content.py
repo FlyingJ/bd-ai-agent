@@ -14,7 +14,7 @@ def get_file_content(working_directory, file_path):
 	try:
 		# validate working_directory / directory lies within working_directory
 		# or throw exception
-		validate_is_jailed(working_directory, file_path) 
+		validate_is_jailed(working_directory, file_path, "read") 
 		# validate norm_directory_path (directory we are listing) is a directory
 		validate_is_file(norm_file_path)
 	

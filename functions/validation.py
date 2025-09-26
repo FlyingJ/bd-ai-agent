@@ -1,6 +1,6 @@
 import os
 
-def validate_is_jailed(a, b):
+def validate_is_jailed(a, b, verb):
 	'''
 	Return True, if the absolute path of b is a sub-directory of a;
 	otherwise, raise Exception
@@ -13,13 +13,15 @@ def validate_is_jailed(a, b):
 		True if b contained within a,
 		or raise Exception with apropos message
 	'''
-	if os.path.commonpath([
-		os.path.abspath(os.path.normpath(a)),
-		os.path.abspath(os.path.normpath(os.path.join(a,b))),
-		]) == os.path.abspath(os.path.normpath(a)):
+	verbs = {
+		"list": "list",
+		"read": "read",
+		"write": "write to",
+		}
+	if os.path.abspath(os.path.join(a,b)).startswith(os.path.abspath(a)):
 		return True
 	else:
-		raise Exception(f'Cannot list "{b}" as it is outside the permitted working directory')
+		raise Exception(f'Cannot {verbs[verb]} "{b}" as it is outside the permitted working directory')
 
 def validate_is_dir(a):
 	'''

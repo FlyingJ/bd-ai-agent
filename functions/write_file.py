@@ -1,5 +1,7 @@
 import os
 
+from functions.validation import validate_is_file, validate_is_jailed
+
 def write_file(working_directory, file_path, content):
 	norm_working_path = os.path.normpath(working_directory)
 	norm_file_path = os.path.normpath(
@@ -9,16 +11,18 @@ def write_file(working_directory, file_path, content):
 	try:
 		# validate working_directory / directory lies within working_directory
 		# or throw exception
-		validate_is_jailed(working_directory, file_path)
-		# validate norm_directory_path (directory we are listing) is a directory
-		validate_is_file(norm_file_path)
+		validate_is_jailed(working_directory, file_path, "write")
+		# create target file directory, if absent
+		dest_path = os.path.dirname(norm_file_path)
+		if not os.path.isdir(dest_path):
+			os.makedirs(dest_path)
 	
-		# read first MAX_CHARS of file_path and return
-		with open(norm_file_path, "r", encoding="utf-8") as fd:
+		# write content to file
+		with open(norm_file_path, "w", encoding="utf-8") as fd:
 			chars_written = fd.write(content)
 
-		# let the caller know that we needed to truncate at MAX_CHARS
-		if len(content) != chars_written:
+		# return status
+		if len(content) == chars_written:
 			return f'Successfully wrote to "{file_path}" ({chars_written} characters written)'
 		else:
 			raise Exception(f'Write to "{file_path}" incomplete: {chars_written} of {len(content)} characters written')
