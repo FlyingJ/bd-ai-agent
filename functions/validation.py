@@ -14,6 +14,7 @@ def validate_is_jailed(a, b, verb):
 		or raise Exception with apropos message
 	'''
 	verbs = {
+		"execute": "execute",
 		"list": "list",
 		"read": "read",
 		"write": "write to",
