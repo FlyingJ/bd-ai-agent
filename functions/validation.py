@@ -8,6 +8,7 @@ def validate_is_jailed(a, b, verb):
 	Args:
 		a (str): containing directory path
 		b (str): contained directory path (relative path to a)
+        verb (str): action definition to send appropriate Exception message
 
 	Returns:
 		True if b contained within a,
