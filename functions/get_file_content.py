@@ -1,7 +1,24 @@
 import os
 
+from google import genai
+from google.genai import types
+
 from functions.config import MAX_CHARS
 from functions.validation import validate_is_jailed, validate_is_file
+
+schema_get_file_content = types.FunctionDeclaration(
+	name="get_file_content",
+	description="Read file at specified path, relative to the working directory.",
+	parameters=types.Schema(
+		type=types.Type.OBJECT,
+		properties={
+			"file_path": types.Schema(
+				type=types.Type.STRING,
+				description="The path of the file to read, relative to the working directory.",
+			)
+		}
+	)
+)
 
 def get_file_content(working_directory, file_path):
 	norm_working_path = os.path.normpath(working_directory)

@@ -1,9 +1,32 @@
 import os
 import subprocess
 
+from google import genai
+from google.genai import types
+
+from functions.config import COMMAND_TIMEOUT
 from functions.validation import validate_is_jailed
 
-COMMAND_TIMEOUT=30
+schema_run_python_file = types.FunctionDeclaration(
+	name="run_python_file",
+	description="Run python source file at specified path, relative to the working directory. A list of arguments can be provided.",
+	parameters=types.Schema(
+		type=types.Type.OBJECT,
+		properties={
+			"file_path": types.Schema(
+				type=types.Type.STRING,
+				description="The path of the python source file to run, relative to the working directory.",
+			),
+			"args": types.Schema(
+				type=types.Type.ARRAY,
+				description="A list of arguments to pass to the python runtime.",
+				items=types.Schema(
+					type=types.Type.STRING,
+				),
+			),
+		}
+	)
+)
 
 def run_python_file(working_directory, file_path, args=[]):
 	norm_working_path = os.path.normpath(working_directory)
