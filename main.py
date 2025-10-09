@@ -5,6 +5,14 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
+from functions.get_files_info import schema_get_files_info
+
+available_functions = types.Tool(
+    function_declarations = [
+        schema_get_files_info,
+    ]
+)
+
 def main():
     print("Hello from bd-ai-agent!")
 
@@ -16,6 +24,16 @@ def main():
     model = "gemini-2.0-flash-001"
     # contents = "Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum."
     
+    # system_prompt provides further instruction to model
+    system_prompt = """
+You are a helpful AI coding agent.
+
+When a user asks a question or makes a request, make a function call plan. You can perform the following operations:
+
+- List files and directories
+
+All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
+"""
     verbose = False
     if sys.argv[-1] == "--verbose":
         verbose = True
@@ -37,6 +55,10 @@ def main():
     response = client.models.generate_content(
         model=model,
         contents=messages,
+        config=types.GenerateContentConfig(
+            tools = [available_functions],
+            system_instruction=system_prompt
+        ),
     )
 
     print(f"    Model: {model}")
@@ -44,7 +66,12 @@ def main():
     if verbose:
         print(f"    User prompt: {user_prompt}")
 
-    print(f"    Response: {response.text.strip()}")
+    if response.function_calls:
+        for call in response.function_calls:
+            print(f'Calling function: {call.name}({call.args})')
+    
+    if response.text:
+        print(f"    Response: {response.text.strip()}")
 
     if verbose:
         print(f"    Prompt tokens: {response.usage_metadata.prompt_token_count}")
