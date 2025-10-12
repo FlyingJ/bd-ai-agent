@@ -26,8 +26,6 @@ def get_file_content(working_directory, file_path):
 		os.path.join(working_directory, file_path)
 		)
 
-	response_header = f'Result for "{file_path}":\n'
-
 	try:
 		# validate working_directory / directory lies within working_directory
 		# or throw exception
@@ -44,6 +42,6 @@ def get_file_content(working_directory, file_path):
 			file_footer = f'\n[...File "{file_path}" truncated at {MAX_CHARS} characters]'
 			file_content += file_footer
 	
-		return response_header + file_content
+		return file_content
 	except Exception as e:
-		return response_header + f"    Error: {e}\n"
+		return f"    Error: {e}\n"
