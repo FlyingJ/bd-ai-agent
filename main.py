@@ -5,10 +5,10 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from functions.get_file_content import schema_get_file_content
-from functions.get_files_info import schema_get_files_info
-from functions.run_python_file import schema_run_python_file
-from functions.write_file import schema_write_file
+from functions.get_file_content import get_file_content, schema_get_file_content
+from functions.get_files_info import get_files_info, schema_get_files_info
+from functions.run_python_file import run_python_file, schema_run_python_file
+from functions.write_file import write_file, schema_write_file
 
 available_functions = types.Tool(
     function_declarations = [
@@ -19,11 +19,46 @@ available_functions = types.Tool(
     ]
 )
 
+function_map = {
+    "get_file_content": get_file_content,
+    "get_files_info": get_files_info,
+    "run_python_file": run_python_file,
+    "write_file": write_file,
+}
+
 def call_function(function_call_part, verbose=False):
+    function_name = function_call_part.name
+    function_args = function_call_part.args
+    
+    function_args['working_directory'] = 'calculator'
+
     if verbose:
-        print(f'Calling function: {function_call_part.name}({function_call_part.args})')
+        print(f'Calling function: {function_name}({function_args})')
     else:
-        print(f' - Calling function: {function_call_part.name}')
+        print(f' - Calling function: {function_name}')
+
+    try:
+        function_result = function_map[function_name](**function_args)
+    except KeyError:
+        return types.Content(
+            role='tool',
+            parts=[
+                types.Part.from_function_response(
+                    name=function_name,
+                    response={'error': f'Unknown function: {function_name}'},
+                )
+            ],
+        )
+
+    return types.Content(
+        role='tool',
+        parts=[
+            types.Part.from_function_response(
+                name=function_name,
+                response={'result': function_result},
+            )
+        ]
+    )
 
 def main():
     print("Hello from bd-ai-agent!")
@@ -82,8 +117,12 @@ All paths you provide should be relative to the working directory. You do not ne
         print(f"    User prompt: {user_prompt}")
 
     if response.function_calls:
-        for call in response.function_calls:
-            print(f'    Calling function: {call.name}({call.args})')
+        for function_call in response.function_calls:
+            function_call_result = call_function(function_call, verbose=True)
+            if not function_call_result.parts[0].function_response.response:
+                raise Exception(f'    Error: failed to call function: "{function_call.name}"')
+            elif verbose:
+                print(f' -> {function_call_result.parts[0].function_response.response}')
     
     if response.text:
         print(f"    Response: {response.text.strip()}")
