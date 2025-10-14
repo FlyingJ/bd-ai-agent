@@ -60,30 +60,32 @@ def call_function(function_call_part, verbose=False):
         ]
     )
 
-def main():
-    print("Hello from bd-ai-agent!")
-
-    load_dotenv()
-    api_key = os.environ.get("GEMINI_API_KEY")
-
-    client = genai.Client(api_key=api_key)
-
-    model = "gemini-2.0-flash-001"
-    # contents = "Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum."
-    
-    # system_prompt provides further instruction to model
-    system_prompt = """
+SYSTEM_PROMPT = '''
 You are a helpful AI coding agent.
 
-When a user asks a question or makes a request, make a function call plan. You can perform the following operations:
+When a user asks a question or makes a request, make a function call plan.
+
+The following operations are available:
 
 - List files and directories
 - Read file contents
 - Execute Python files with optional arguments
 - Write or overwrite files
 
-All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
-"""
+Provide paths relative to the working directory.
+Do not specify the working directory in function calls as it is hard-coded for security reasons.
+'''
+
+def main():
+    print("Hello from bd-ai-agent!")
+
+    load_dotenv()
+    api_key = os.environ.get("GEMINI_API_KEY")
+    client = genai.Client(api_key=api_key)
+
+    model = "gemini-2.0-flash-001"
+    print(f"    Model: {model}")
+
     verbose = False
     if sys.argv[-1] == "--verbose":
         verbose = True
@@ -97,7 +99,10 @@ All paths you provide should be relative to the working directory. You do not ne
         sys.exit(1)
 
     user_prompt = sys.argv.pop()
+    if verbose:
+        print(f"    User prompt: {user_prompt}")
 
+    # seed messages list with user supplied prompt
     messages = [
         types.Content(role="user", parts=[types.Part(text=user_prompt)])
     ]
@@ -107,14 +112,9 @@ All paths you provide should be relative to the working directory. You do not ne
         contents=messages,
         config=types.GenerateContentConfig(
             tools = [available_functions],
-            system_instruction=system_prompt
+            system_instruction=SYSTEM_PROMPT
         ),
     )
-
-    print(f"    Model: {model}")
-
-    if verbose:
-        print(f"    User prompt: {user_prompt}")
 
     if response.function_calls:
         for function_call in response.function_calls:
