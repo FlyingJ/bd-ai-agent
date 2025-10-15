@@ -101,6 +101,8 @@ def main():
     agent_iterations = 0
     while agent_iterations < MAX_AGENT_ITERATIONS:
         agent_iterations += 1
+        if verbose:
+            print(f' - feedback loop on iteration {agent_iterations}')
 
         # send updated messages to model and save response
         response = client.models.generate_content(
@@ -112,29 +114,43 @@ def main():
             ),
         )
 
+        print(f' - we have received a response: {True if response else False}')
+
         # if response makes function calls
         # call the functions
         # Q: update messages with response?
         if response.function_calls:
+            # update messages with models game pan
+            for candidate in response.candidates:
+                messages.append(candidate.content)
+            if verbose:
+                print(f' - now have {len(messages)} messages')
+
+            print(f' - the response contains {len(response.function_calls)} function calls')
             for function_call in response.function_calls:
+                if verbose:
+                    print(f' - working on function call: {function_call.name}')
+
+                # call the function and collect the response
                 function_call_result = call_function(function_call, verbose=True)
+
                 if not function_call_result.parts[0].function_response.response:
                     raise Exception(f'    Error: failed to call function: "{function_call.name}"')
-                elif verbose:
-                    print(f' -> {function_call_result.parts[0].function_response.response}')
-
-        # still doing stuff
-        # update messages and iterate
-        
+                else:
+                    function_response = function_call_result.parts[0].function_response
+                    if verbose:
+                        print(f' - {function_response.name} response: {function_response.response}')        
+                # update messages with result of function call
+                new_message = types.Content(
+                    role='user',
+                    parts=function_call_result.parts,
+                )
+                messages.append(new_message)
         # if no new function call and only text response, we are done
         # jump out of the loop
-        if response.text:
+        elif response.text:
             print(f"    Response: {response.text.strip()}")
             break
-
-        # if verbose:
-        #     print(f"    Prompt tokens: {response.usage_metadata.prompt_token_count}")
-        #     print(f"    Response tokens: {response.usage_metadata.candidates_token_count}")
 
 if __name__ == "__main__":
     main()

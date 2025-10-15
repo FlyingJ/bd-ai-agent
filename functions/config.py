@@ -19,5 +19,6 @@ The following operations are available:
 - Write or overwrite files
 
 Provide paths relative to the working directory.
-Do not specify the working directory in function calls as it is hard-coded for security reasons.
+The working directory will be hard-coded in function calls to "calculator".
+Do not specify the working directory in function calls.
 '''
