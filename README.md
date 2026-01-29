@@ -45,5 +45,5 @@ $ uv run main.py
 
 ## Resources
 
-[^1][Google AI Studio - API Keys](https://aistudio.google.com/api-keys)
-[^2][Google Gen AI SDK Reference](https://googleapis.github.io/python-genai/)
+[^1]: [Google AI Studio - API Keys](https://aistudio.google.com/api-keys)  
+[^2]: [Google Gen AI SDK Reference](https://googleapis.github.io/python-genai/)  
