@@ -1,13 +1,11 @@
 # Boot.dev AI agent
 
---
-
 ## Prerequisites
 
 * Python 3.10+
 * [uv](https://github.com/astral-sh/uv)
 * shell access
-* Google AI API key (can be created [here](https://aistudio.google.com/api-keys))
+* Google AI API key [^1]
 
 ## Prepare the project environment
 
